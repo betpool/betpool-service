@@ -1,0 +1,43 @@
+Entities:
+    event {
+        "url": "/events/[id]"
+        "name": "horse race"
+        "description": "event will take place today at 7pm"
+        "expiredTs": "6.30pm"
+    }
+    bet {
+        "url": "/events/[id]/bets/[id]"
+        "odds": "1:2"
+    }
+
+Endpoints:
+    /events:
+        POST - create event:
+            Request:
+                {
+                    "name": "horse race"
+                    "description": "event will take place today at 7pm"
+                    "expiredTs": "6.30pm"
+                }
+            Response:
+                {
+                    "url": "/events/[id]"
+                }
+        GET - get events collection:
+            [
+                event {},
+                event {},
+                ...
+            ]
+
+    /events/[id]
+        GET - get event
+        PUT - update event
+
+    /events/[id]/outcomes
+        POST - create outcome for the given event
+        GET - get all outcomes for the given event
+
+    /events/[id]/bets
+        GET - get bet for the given event
+        PUT - register user for the given bet
