@@ -18,14 +18,14 @@ Endpoints:
             {
 				"links" : {
 					"self" : "/events"
-					"event.create" : "/events" // TODO
+					"event.create" : "/events"
 				}
 				"items" : [
 					{
 						"links" : {
-							"self" : "/events/1000" // TODO it's for HATEOAS
+							"self" : "/events/1000" // it's for HATEOAS
 						}
-						"url" : "/events/1000" // TODO it's an ID
+						"id" : "/events/1000" // it's an ID
 						"name" : "Manchester United - Chelsea"
 						"date" : timestamp
 					},
@@ -37,12 +37,15 @@ Endpoints:
 			{
 				"name" : "Manchester United - Chelsea"
 				"description" : "some description of event"
-				"date" : timestamp
-				"expiredTs": timestamp
+				"eventStartTs" : timestamp
+				"betPoolCloseTs": timestamp
 			}
             Response:
             {
-				"url" : "/events/1000"
+                "links" : {
+                    "self" : "/events/1000"
+                }
+                "id" : "/events/1000"
             }
 
     /events/[event-id]
@@ -53,47 +56,38 @@ Endpoints:
 				"links": {
 					"self" : "/events/1000"
 					"collection" : "/events"
-					"event.update" : "/events/1000" // TODO
-					"event.delete" : "/events/1000" // TODO
+                    "event.outcomes" : "/events/1000/outcomes"
+					"event.update" : "/events/1000"
+					"event.delete" : "/events/1000"
 				}
-				"url" : "/events/1000"
+				"id" : "/events/1000"
 				"name" : "Manchester United - Chelsea"
 				"description" : "some description of event"
-				"date" : timestamp
-				"expiredTs": timestamp
-				// TODO стоит ли сюда включать? и как вообще разрулить?
-				"outcomes" : [
-					{
-						"links" : {
-							"self" : "/events/1000/outcomes/1"
-						}
-						"url" : "/events/1000/outcomes/1"
-						"name" : "Manchester win"
-						"odd" : "1:3"
-					},
-					...
-				]
+				"eventStartTs" : timestamp
+                "betPoolCloseTs": timestamp
 			}
         PUT - update event
 			Request:
 			{
-				"url" : "/events/1000"
+				"id" : "/events/1000"
 				"name" : "Manchester United - Chelsea (updated name)"
 				"description" : "updated description of event"
-				"date" : timestamp
-				"expiredTs": timestamp
+				"eventStartTs" : timestamp
+                "betPoolCloseTs": timestamp
 			}
 			Response: {}
 		DELETE - delete event
-			Request: {}
+			Request: 
+            {
+                "id" : "/events/1000"
+            }
 			Response: {}
-# maybe we don't need outcomes as separate part? no changes (except odds), because users could made some bets?	
-# maybe new odd => new outcome? this is weird, though		
+
 	/events/[event-id]/outcomes
         GET - get all outcomes for the given event
-			# nothing interesting
+			# similar to /events
 		POST - create outcome for the given event
-			# nothing interesting
+			# similar to /events
 	
 	/events/[event-id]/outcomes/[outcome-id]
 		GET - get outcome:
@@ -102,15 +96,16 @@ Endpoints:
 			{
 				"links" : {
 					"self" : "/events/1000/outcomes/1"
+                    "outcome.event" : "/events/1000"
 				}
-				"url" : "/events/1000/outcomes/1"
+				"id" : "/events/1000/outcomes/1"
 				"name" : "Manchester win"
-				"odd" : "1:3"
+				"currentOdd" : "1:3"
 			}
 		PUT - update outcome:
-			# nothing interesting
+			# similar to event update
 		DELETE - delete outcome:
-			# nothing interesting
+			# similar to event delete
 
 -------- Bookmaker part end --------
 
@@ -123,10 +118,12 @@ Endpoints:
 			}
         POST - make a bet to outcome given
 			Request: {
-				// TODO
+                "value" : 100.0
+                "confirmedOdd" : "1:3"
+                "createdTs" : timestamp
 			}
 			Response: {
-				"url" : "/events/1/bets/1"
+				"id" : "/events/1/bets/1"
 			}
 
 	/events/[event-id]/bets/[bet-id]
@@ -134,13 +131,12 @@ Endpoints:
 			Request: {}
 			Response: {
 				"links" : {
-					"self" : "/events/1/bets/1"
+					"self" : "/events/1000/bets/1"
+                    "bet.outcome" : "/events/1000/outcome/1"
 				}
+                "id" : "/events/1000/bets/1"
 				"value" : 100.0
-				"odd" : "1:3"
-				"betTs" : timestamp
-				"outcome" : {
-					// TODO
-				}
+				"confirmedOdd" : "1:3"
+				"createdTs" : timestamp
 			}
 -------- User part end --------
