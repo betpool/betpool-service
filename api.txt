@@ -1,43 +1,146 @@
-Entities:
-    event {
-        "url": "/events/[id]"
-        "name": "horse race"
-        "description": "event will take place today at 7pm"
-        "expiredTs": "6.30pm"
-    }
-    bet {
-        "url": "/events/[id]/bets/[id]"
-        "odds": "1:2"
-    }
+Система принятия ставок на спортивные мероприятия
+
+Есть список событий (events), у каждого события есть набор исходов (outcomes).
+Букмейкер может добавлять и редактировать события и исходы, пользователь может только просматривать.
+Пользователь может делать ставки (bets) на исходы.
+
+Коэффициенты (odds) на различные исходы могут меняться с течением времени (извне или благодаря алгоритмам внутри системы),
+но для конкретной ставки, добавленной пользователем в определенный момент времени пересчитываться не будут.
+
+Http status codes are not listed !!!
 
 Endpoints:
+-------- Bookmaker part --------
     /events:
-        POST - create event:
-            Request:
-                {
-                    "name": "horse race"
-                    "description": "event will take place today at 7pm"
-                    "expiredTs": "6.30pm"
-                }
-            Response:
-                {
-                    "url": "/events/[id]"
-                }
         GET - get events collection:
-            [
-                event {},
-                event {},
-                ...
-            ]
+			Request: {}
+			Response:
+            {
+				"links" : {
+					"self" : "/events"
+					"event.create" : "/events" // TODO
+				}
+				"items" : [
+					{
+						"links" : {
+							"self" : "/events/1000" // TODO it's for HATEOAS
+						}
+						"url" : "/events/1000" // TODO it's an ID
+						"name" : "Manchester United - Chelsea"
+						"date" : timestamp
+					},
+					...
+				]
+			}
+		POST - create event:
+            Request:
+			{
+				"name" : "Manchester United - Chelsea"
+				"description" : "some description of event"
+				"date" : timestamp
+				"expiredTs": timestamp
+			}
+            Response:
+            {
+				"url" : "/events/1000"
+            }
 
-    /events/[id]
-        GET - get event
+    /events/[event-id]
+        GET - get event:
+			Request: {}
+			Response:
+			{
+				"links": {
+					"self" : "/events/1000"
+					"collection" : "/events"
+					"event.update" : "/events/1000" // TODO
+					"event.delete" : "/events/1000" // TODO
+				}
+				"url" : "/events/1000"
+				"name" : "Manchester United - Chelsea"
+				"description" : "some description of event"
+				"date" : timestamp
+				"expiredTs": timestamp
+				// TODO стоит ли сюда включать? и как вообще разрулить?
+				"outcomes" : [
+					{
+						"links" : {
+							"self" : "/events/1000/outcomes/1"
+						}
+						"url" : "/events/1000/outcomes/1"
+						"name" : "Manchester win"
+						"odd" : "1:3"
+					},
+					...
+				]
+			}
         PUT - update event
-
-    /events/[id]/outcomes
-        POST - create outcome for the given event
+			Request:
+			{
+				"url" : "/events/1000"
+				"name" : "Manchester United - Chelsea (updated name)"
+				"description" : "updated description of event"
+				"date" : timestamp
+				"expiredTs": timestamp
+			}
+			Response: {}
+		DELETE - delete event
+			Request: {}
+			Response: {}
+# maybe we don't need outcomes as separate part? no changes (except odds), because users could made some bets?	
+# maybe new odd => new outcome? this is weird, though		
+	/events/[event-id]/outcomes
         GET - get all outcomes for the given event
+			# nothing interesting
+		POST - create outcome for the given event
+			# nothing interesting
+	
+	/events/[event-id]/outcomes/[outcome-id]
+		GET - get outcome:
+			Request: {}
+			Response:
+			{
+				"links" : {
+					"self" : "/events/1000/outcomes/1"
+				}
+				"url" : "/events/1000/outcomes/1"
+				"name" : "Manchester win"
+				"odd" : "1:3"
+			}
+		PUT - update outcome:
+			# nothing interesting
+		DELETE - delete outcome:
+			# nothing interesting
 
-    /events/[id]/bets
-        GET - get bet for the given event
-        PUT - register user for the given bet
+-------- Bookmaker part end --------
+
+-------- User part --------
+    /events/[event-id]/bets
+        GET - get bets for the given event, made by current user
+			Request: {}
+			Response: {
+				# list of bets
+			}
+        POST - make a bet to outcome given
+			Request: {
+				// TODO
+			}
+			Response: {
+				"url" : "/events/1/bets/1"
+			}
+
+	/events/[event-id]/bets/[bet-id]
+		GET - get info about bet:
+			Request: {}
+			Response: {
+				"links" : {
+					"self" : "/events/1/bets/1"
+				}
+				"value" : 100.0
+				"odd" : "1:3"
+				"betTs" : timestamp
+				"outcome" : {
+					// TODO
+				}
+			}
+-------- User part end --------
