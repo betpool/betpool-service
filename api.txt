@@ -7,7 +7,7 @@
 Коэффициенты (odds) на различные исходы могут меняться с течением времени (извне или благодаря алгоритмам внутри системы),
 но для конкретной ставки, добавленной пользователем в определенный момент времени пересчитываться не будут.
 
-Http status codes are not listed !!!
+Http коды ответов будут добавлены позже.
 
 Endpoints:
 -------- Bookmaker part --------
@@ -114,15 +114,37 @@ Endpoints:
         GET - get bets for the given event, made by current user
 			Request: {}
 			Response: {
-				# list of bets
+				"links" : {
+					"self" : "/events/1000/bets"
+					"bet.create" : "/events/1000/bets"
+				}
+				"items" : [
+					{
+						"links" : {
+							"self" : "/events/1000/bets/1"
+							"bet.outcome" : "/events/1000/outcome/1"
+						}
+						"id" : "/events/1000/bets/1"
+						"outcomeId" : "/events/1000/outcome/1"
+						"value" : 100.0
+						"confirmedOdd" : "1:3"
+						"createdTs" : timestamp
+					},
+					...
+				]
 			}
         POST - make a bet to outcome given
 			Request: {
                 "value" : 100.0
                 "confirmedOdd" : "1:3"
                 "createdTs" : timestamp
+				"outcomeId" : "/events/1000/outcome/1"
 			}
 			Response: {
+				"links" : {
+					"self" : "/events/1000/bets/1"
+                    "bet.outcome" : "/events/1000/outcome/1"
+				}
 				"id" : "/events/1/bets/1"
 			}
 
@@ -135,6 +157,7 @@ Endpoints:
                     "bet.outcome" : "/events/1000/outcome/1"
 				}
                 "id" : "/events/1000/bets/1"
+				"outcomeId" : "/events/1000/outcome/1"
 				"value" : 100.0
 				"confirmedOdd" : "1:3"
 				"createdTs" : timestamp
