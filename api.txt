@@ -7,10 +7,16 @@
 Коэффициенты (odds) на различные исходы могут меняться с течением времени (извне или благодаря алгоритмам внутри системы),
 но для конкретной ставки, добавленной пользователем в определенный момент времени пересчитываться не будут.
 
+Решили использовать REST, в основном потому что функционал API исчерпывается набором CRUD операций.
+На данный момент посчитали, что лучше пожертвовать self descriptive messages, так как подходящих Content Type не нашли, 
+а писать свой кажется нецелесообразно.
+Однако остальные принципы стараемся соблюсти.
+
+Информация об отношениях (соответственно какие запросы надо использовать для каждого из отношений) зашиты в клиент.
+
 Http коды ответов будут добавлены позже.
 
 Endpoints:
--------- Bookmaker part --------
     /events:
         GET - get events collection:
 			Request: {}
@@ -23,9 +29,9 @@ Endpoints:
 				"items" : [
 					{
 						"links" : {
-							"self" : "/events/1000" // it's for HATEOAS
+							"self" : "/events/1000"
 						}
-						"id" : "/events/1000" // it's an ID
+						"id" : "/events/1000"
 						"name" : "Manchester United - Chelsea"
 						"date" : timestamp
 					},
@@ -77,7 +83,7 @@ Endpoints:
 			}
 			Response: {}
 		DELETE - delete event
-			Request: 
+			Request:
             {
                 "id" : "/events/1000"
             }
@@ -88,7 +94,7 @@ Endpoints:
 			# similar to /events
 		POST - create outcome for the given event
 			# similar to /events
-	
+
 	/events/[event-id]/outcomes/[outcome-id]
 		GET - get outcome:
 			Request: {}
@@ -97,6 +103,8 @@ Endpoints:
 				"links" : {
 					"self" : "/events/1000/outcomes/1"
                     "outcome.event" : "/events/1000"
+					"outcome.bets" : "/events/1000/bets?outcome=1"
+					"outcome.bets.create" : "/events/1000/bets?outcome=1"
 				}
 				"id" : "/events/1000/outcomes/1"
 				"name" : "Manchester win"
@@ -107,9 +115,6 @@ Endpoints:
 		DELETE - delete outcome:
 			# similar to event delete
 
--------- Bookmaker part end --------
-
--------- User part --------
     /events/[event-id]/bets
         GET - get bets for the given event, made by current user
 			Request: {}
@@ -125,7 +130,6 @@ Endpoints:
 							"bet.outcome" : "/events/1000/outcome/1"
 						}
 						"id" : "/events/1000/bets/1"
-						"outcomeId" : "/events/1000/outcome/1"
 						"value" : 100.0
 						"confirmedOdd" : "1:3"
 						"createdTs" : timestamp
@@ -133,12 +137,11 @@ Endpoints:
 					...
 				]
 			}
-        POST - make a bet to outcome given
+        POST - make a bet to outcome given (outcome is given as parameter)
 			Request: {
                 "value" : 100.0
                 "confirmedOdd" : "1:3"
                 "createdTs" : timestamp
-				"outcomeId" : "/events/1000/outcome/1"
 			}
 			Response: {
 				"links" : {
@@ -157,9 +160,7 @@ Endpoints:
                     "bet.outcome" : "/events/1000/outcome/1"
 				}
                 "id" : "/events/1000/bets/1"
-				"outcomeId" : "/events/1000/outcome/1"
 				"value" : 100.0
 				"confirmedOdd" : "1:3"
 				"createdTs" : timestamp
 			}
--------- User part end --------
