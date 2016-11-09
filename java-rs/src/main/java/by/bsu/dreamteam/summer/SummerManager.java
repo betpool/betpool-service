@@ -10,7 +10,7 @@ public class SummerManager {
         for (long i = 1; i <= n; ++i) {
             result += i;
         }
-        return Long.toString(result);
+        return String.format("Sum(%d)=%d", n, result);
     }
 
 }
