@@ -7,7 +7,7 @@ public class SummerManager {
 
     public String calculateSum(long n) {
         long result = 0;
-        for (long i = 0; i < n; ++i) {
+        for (long i = 1; i <= n; ++i) {
             result += i;
         }
         return Long.toString(result);
