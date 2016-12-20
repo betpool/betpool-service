@@ -5,14 +5,16 @@ import com.strategicgains.repoexpress.domain.Identifier;
 import com.strategicgains.repoexpress.event.RepositoryObserver;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class UserBetEntityObserver implements RepositoryObserver<UserBetEntity> {
 
-    private static long betIdNext = 1000;
+    // not sure about that
+    private static AtomicLong betIdNext = new AtomicLong(1000);
 
     @Override
     public void beforeCreate(UserBetEntity object) {
-        object.setBetId(betIdNext++);
+        object.setBetId(betIdNext.getAndIncrement());
         Date now = new Date(System.currentTimeMillis());
         object.setCreatedTs(now);
     }

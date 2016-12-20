@@ -1,38 +1,67 @@
-import base64
 import random
-import datetime
+import numpy as np
 
 # FIX params
-count_list_gets = 5
-count_item_gets = 5
-count_item_posts = 5
+total_requests = 100000
 
-total_requests = count_list_gets + count_list_gets + count_item_posts
+requests = np.array(["GET_LIST", "GET_ITEM", "CREATE_ITEM"])
+req_probabilities = list(np.array([0.35, 0.3, 0.35]))
 
-users = { 'Andrew': '123', 'Dmitry': '456', 'Marilyn': 'Monroe'}
+user_count = 500
+events_count = 1000
 
-hashes = []
-for user, password in users.iteritems():
-    hashes.append(base64.b64encode(user + ':' + password))
+min_user_id = 100
+min_bet_id = 1000
 
-events_with_outcomes = { '1001': [1, 2, 3], '1002': [1, 2, 3, 4], '1003': [1, 2] }
 
-post_body_format = "{ event : %s, outcome : %s, 'value' : %s, 'confirmedOdd' : %s, 'createdTs' : %s }"
+userBets = {}
+for i in xrange(user_count):
+    userBets[min_user_id + i] = list()
 
-for i in xrange(total_requests):
-    rand_user_hash = random.choice(hashes)
-    rand_req = random.randint(1, total_requests)
+events_with_outcomes = {}
 
-    if rand_req <= count_list_gets:
-        print "{}||{}||{}||{}".format('GET', '/bets', 'good', rand_user_hash)
-    elif rand_req <= count_list_gets + count_item_gets:
-        print "{}||{}||{}||{}".format('GET', '/bets/1', 'good', rand_user_hash)
+for i in xrange(events_count):
+    events_with_outcomes[1000 + i] = list(xrange(1, random.randint(2, 5)))
+
+post_body_format = "{ \"eventId\": \"%s\", \"outcomeId\": \"%s\", \"value\": \"%s\", \"confirmedOdd\": \"%s\" }"
+
+gend_requests = 0
+bets_count = 0
+
+cur_user = -1
+while gend_requests < total_requests:
+
+    cur_user = (cur_user + 1) % user_count
+    cur_user_id = min_user_id + cur_user
+
+    cur_request = np.random.choice(requests, 1, p=req_probabilities)
+
+    if cur_request == "GET_LIST":
+
+        print "{}||{}||{}||{}".format('GET', '/bets', 'get_list', cur_user_id)
+
+    elif cur_request == "GET_ITEM":
+
+        if len(userBets[cur_user_id]) > 0:
+            print "{}||{}||{}||{}".format('GET', '/bets/' + str(random.choice(userBets[cur_user_id])), 'get_item', cur_user_id)
+        else:
+            continue
+
     else:
-        rand_event = random.choice(list(events_with_outcomes.iterkeys()))
+
+        rand_event = random.choice(events_with_outcomes.keys())
         rand_outcome = random.choice(events_with_outcomes[rand_event])
+
         rand_value = random.randint(1, 100)
         rand_odd = str(random.randint(1, 10)) + ':' + str(random.randint(1, 10))
-        now = datetime.datetime.now()
 
-        post_body = post_body_format % (rand_event, rand_outcome, rand_value, rand_odd, now.isoformat())
-        print "{}||{}||{}||{}||{}".format('POST', '/bets', 'good', rand_user_hash, post_body)
+        post_body = post_body_format % (rand_event, rand_outcome, rand_value, rand_odd)
+
+        userBets[cur_user_id].append(min_bet_id + bets_count)
+
+        print "{}||{}||{}||{}||{}".format('POST', '/bets', 'create_item', cur_user_id, post_body)
+
+        bets_count += 1
+
+    gend_requests += 1
+

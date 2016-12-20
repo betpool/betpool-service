@@ -39,7 +39,7 @@ import com.strategicgains.syntaxe.ValidationException;
 
 public class Server
 {
-	private static final String SERVICE_NAME = "TODO: Enter service name";
+	private static final String SERVICE_NAME = "Betpool Service";
 	private static final Logger LOG = LoggerFactory.getLogger(SERVICE_NAME);
 
 	private RestExpress server;
@@ -56,7 +56,9 @@ public class Server
 				.setName(SERVICE_NAME)
 				.setBaseUrl(config.getBaseUrl())
 				.setExecutorThreadCount(config.getExecutorThreadPoolSize())
-				.addMessageObserver(new SimpleConsoleLogMessageObserver());
+				// disable log for load testing
+//				.addMessageObserver(new SimpleConsoleLogMessageObserver())
+		;
 
 		Routes.define(config, server);
 		Relationships.define(server);

@@ -9,7 +9,7 @@ def make_ammo(method, url, headers, case, auth, body):
     req_template = (
           "%s %s HTTP/1.1\r\n"
           "%s\r\n"
-          "Authorization: Basic %s\r\n"
+          "userId: %s\r\n"
           "\r\n"
     )
 
@@ -17,7 +17,7 @@ def make_ammo(method, url, headers, case, auth, body):
     req_template_w_entity_body = (
           "%s %s HTTP/1.1\r\n"
           "%s\r\n"
-          "Authorization: Basic %s\r\n"
+          "userId: %s\r\n"
           "Content-Length: %d\r\n"
           "\r\n"
           "%s\r\n"
@@ -47,9 +47,10 @@ def main():
 
         method, url, case, auth = method.strip(), url.strip(), case.strip(), auth.strip()
 
-        headers = "Host: hostname.com\r\n" + \
+        headers = "Host: localhost\r\n" + \
             "User-Agent: tank\r\n" + \
             "Accept: application/json\r\n" + \
+            "Content-Type: application/json\r\n" + \
             "Connection: Close"
 
         sys.stdout.write(make_ammo(method, url, headers, case, auth, body))
