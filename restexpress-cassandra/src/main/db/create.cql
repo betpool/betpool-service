@@ -1,6 +1,6 @@
 drop keyspace if exists betpool_service;
 create keyspace betpool_service
-with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+with replication = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };
 
 use betpool_service;
 

@@ -2,10 +2,13 @@ import random
 import numpy as np
 
 # FIX params
-total_requests = 100000
+# total_requests = 100000
 
 requests = np.array(["GET_LIST", "GET_ITEM", "CREATE_ITEM"])
-req_probabilities = list(np.array([0.35, 0.3, 0.35]))
+# req_probabilities = list(np.array([0.35, 0.3, 0.35]))
+
+# plans = [[100000, list(np.array([0.35, 0.3, 0.35]))], [200000, list(np.array([0.5, 0.5, 0]))]]
+plans = [[100000, list(np.array([0.2, 0.4, 0.4]))]]
 
 user_count = 500
 events_count = 1000
@@ -29,39 +32,43 @@ gend_requests = 0
 bets_count = 0
 
 cur_user = -1
-while gend_requests < total_requests:
+for plan in plans:
+    total_requests = plan[0]
+    req_probabilities = plan[1]
 
-    cur_user = (cur_user + 1) % user_count
-    cur_user_id = min_user_id + cur_user
+    while gend_requests < total_requests:
 
-    cur_request = np.random.choice(requests, 1, p=req_probabilities)
+        cur_user = (cur_user + 1) % user_count
+        cur_user_id = min_user_id + cur_user
 
-    if cur_request == "GET_LIST":
+        cur_request = np.random.choice(requests, 1, p=req_probabilities)
 
-        print "{}||{}||{}||{}".format('GET', '/bets', 'get_list', cur_user_id)
+        if cur_request == "GET_LIST":
 
-    elif cur_request == "GET_ITEM":
+            print "{}||{}||{}||{}".format('GET', '/bets', 'get_list', cur_user_id)
 
-        if len(userBets[cur_user_id]) > 0:
-            print "{}||{}||{}||{}".format('GET', '/bets/' + str(random.choice(userBets[cur_user_id])), 'get_item', cur_user_id)
+        elif cur_request == "GET_ITEM":
+
+            if len(userBets[cur_user_id]) > 0:
+                print "{}||{}||{}||{}".format('GET', '/bets/' + str(random.choice(userBets[cur_user_id])), 'get_item', cur_user_id)
+            else:
+                continue
+
         else:
-            continue
 
-    else:
+            rand_event = random.choice(events_with_outcomes.keys())
+            rand_outcome = random.choice(events_with_outcomes[rand_event])
 
-        rand_event = random.choice(events_with_outcomes.keys())
-        rand_outcome = random.choice(events_with_outcomes[rand_event])
+            rand_value = random.randint(1, 100)
+            rand_odd = str(random.randint(1, 10)) + ':' + str(random.randint(1, 10))
 
-        rand_value = random.randint(1, 100)
-        rand_odd = str(random.randint(1, 10)) + ':' + str(random.randint(1, 10))
+            post_body = post_body_format % (rand_event, rand_outcome, rand_value, rand_odd)
 
-        post_body = post_body_format % (rand_event, rand_outcome, rand_value, rand_odd)
+            userBets[cur_user_id].append(min_bet_id + bets_count)
 
-        userBets[cur_user_id].append(min_bet_id + bets_count)
+            print "{}||{}||{}||{}||{}".format('POST', '/bets', 'create_item', cur_user_id, post_body)
 
-        print "{}||{}||{}||{}||{}".format('POST', '/bets', 'create_item', cur_user_id, post_body)
+            bets_count += 1
 
-        bets_count += 1
-
-    gend_requests += 1
+        gend_requests += 1
 
