@@ -56,6 +56,7 @@ public class Server
 				.setName(SERVICE_NAME)
 				.setBaseUrl(config.getBaseUrl())
 				.setExecutorThreadCount(config.getExecutorThreadPoolSize())
+				.setIoThreadCount(config.getIoThreadPoolSize())
 				// disable log for load testing
 //				.addMessageObserver(new SimpleConsoleLogMessageObserver())
 		;

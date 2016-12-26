@@ -15,14 +15,17 @@ public class Configuration
 extends Environment
 {
 	private static final String DEFAULT_EXECUTOR_THREAD_POOL_SIZE = "20";
+	private static final String DEFAULT_IO_THREAD_POOL_SIZE = "4";
 
 	private static final String PORT_PROPERTY = "port";
 	private static final String BASE_URL_PROPERTY = "base.url";
 	private static final String EXECUTOR_THREAD_POOL_SIZE = "executor.threadPool.size";
+	private static final String IO_THREAD_POOL_SIZE = "io.threadPool.size";
 
 	private int port;
 	private String baseUrl;
 	private int executorThreadPoolSize;
+	private int ioThreadPoolSize;
 	private MetricsConfig metricsSettings;
 
 	private UserBetEntityController userBetEntityController;
@@ -33,6 +36,7 @@ extends Environment
 		this.port = Integer.parseInt(p.getProperty(PORT_PROPERTY, String.valueOf(RestExpress.DEFAULT_PORT)));
 		this.baseUrl = p.getProperty(BASE_URL_PROPERTY, "http://localhost:" + String.valueOf(port));
 		this.executorThreadPoolSize = Integer.parseInt(p.getProperty(EXECUTOR_THREAD_POOL_SIZE, DEFAULT_EXECUTOR_THREAD_POOL_SIZE));
+		this.ioThreadPoolSize = Integer.parseInt(p.getProperty(IO_THREAD_POOL_SIZE, DEFAULT_IO_THREAD_POOL_SIZE));
 		this.metricsSettings = new MetricsConfig(p);
 		CassandraConfig dbConfig = new CassandraConfig(p);
 		initialize(dbConfig);
@@ -58,6 +62,10 @@ extends Environment
 	public int getExecutorThreadPoolSize()
 	{
 		return executorThreadPoolSize;
+	}
+
+	public int getIoThreadPoolSize() {
+		return ioThreadPoolSize;
 	}
 
 	public MetricsConfig getMetricsConfig()
